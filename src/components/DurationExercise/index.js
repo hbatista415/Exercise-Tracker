@@ -1,33 +1,58 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect } from 'react';
+import { View, Text } from 'react-native';
+import { Button } from '@rneui/themed';
 
-function DurationExercise({ name }) {
-  const [seconds, setSeconds] = useState(0);
+export default function DurationExercise({ route, navigation }) {
+  const { exercise, exercises } = route.params;
+
+  const [time, setTime] = useState(0);
   const [running, setRunning] = useState(false);
 
+  const suggestedExercise = exercises.find(
+    (e) => e.id === exercise.suggested
+  );
+
   useEffect(() => {
-    let timer;
+    let interval;
+
     if (running) {
-      timer = setInterval(() => setSeconds(prev => prev + 1), 1000);
+      interval = setInterval(() => {
+        setTime((prev) => prev + 1);
+      }, 1000);
     }
-    return () => clearInterval(timer);
+
+    return () => clearInterval(interval);
   }, [running]);
 
-  const formatTime = (sec) => {
-    const mins = Math.floor(sec / 60);
-    const secs = sec % 60;
-    return `${String(mins).padStart(2,"0")}:${String(secs).padStart(2,"0")}`;
-  };
-
   return (
-    <div>
-      <h2>{name}</h2>
-      <p>Time: {formatTime(seconds)}</p>
-      <button onClick={() => setRunning(!running)}>
-        {running ? "Pause" : "Start"}
-      </button>
-      <button onClick={() => { setSeconds(0); setRunning(false); }}>Reset</button>
-    </div>
+    <View>
+      <Text>{exercise.name}</Text>
+      <Text>Time: {time}s</Text>
+
+      <Button title="Start" onPress={() => setRunning(true)} />
+      <Button title="Stop" onPress={() => setRunning(false)} />
+
+      <Button
+        title="Reset"
+        onPress={() => {
+          setTime(0);
+          setRunning(false);
+        }}
+      />
+
+      <Button
+        title="Suggested Exercise"
+        onPress={() => {
+          navigation.push(
+            suggestedExercise.type === 'repetition'
+              ? 'Repetition'
+              : 'Duration',
+            { exercise: suggestedExercise, exercises }
+          );
+        }}
+      />
+
+      <Button title="Home" onPress={() => navigation.navigate('Home')} />
+    </View>
   );
 }
-
-export default DurationExercise;

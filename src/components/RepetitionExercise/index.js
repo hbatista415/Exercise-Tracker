@@ -1,16 +1,37 @@
-import React, { useState } from "react";
+import React, { useState } from 'react';
+import { View, Text } from 'react-native';
+import { Button } from '@rneui/themed';
 
-function RepetitionExercise({ name }) {
+export default function RepetitionExercise({ route, navigation }) {
+  const { exercise, exercises } = route.params;
+
   const [count, setCount] = useState(0);
 
+  const suggestedExercise = exercises.find(
+    (e) => e.id === exercise.suggested
+  );
+
   return (
-    <div>
-      <h2>{name}</h2>
-      <p>Reps: {count}</p>
-      <button onClick={() => setCount(count + 1)}>Increase</button>
-      <button onClick={() => setCount(0)}>Reset</button>
-    </div>
+    <View>
+      <Text>{exercise.name}</Text>
+      <Text>Count: {count}</Text>
+
+      <Button title="Add Rep" onPress={() => setCount(count + 1)} />
+      <Button title="Reset" onPress={() => setCount(0)} />
+
+      <Button
+        title="Suggested Exercise"
+        onPress={() => {
+          navigation.push(
+            suggestedExercise.type === 'repetition'
+              ? 'Repetition'
+              : 'Duration',
+            { exercise: suggestedExercise, exercises }
+          );
+        }}
+      />
+
+      <Button title="Home" onPress={() => navigation.navigate('Home')} />
+    </View>
   );
 }
-
-export default RepetitionExercise;

@@ -1,34 +1,41 @@
 import React, { useState } from "react";
+import { View, Text } from "react-native";
+import { Button } from "@rneui/themed";
 
-function RunningExercise() {
-  const [time, setTime] = useState(0);
-  const [laps, setLaps] = useState([]);
+export default function RunningExercise({ route, navigation }) {
+  const { exercise, exercises } = route.params;
 
-  const recordLap = () => {
-    setLaps([...laps, time]);
-  };
+  const [laps, setLaps] = useState(0);
+
+  const suggestedExercise = exercises.find(
+    (e) => e.id === exercise.suggested
+  );
 
   return (
-    <div>
-      <h2>Running Exercise</h2>
-      <p>Time: {time}</p>
+    <View>
+      <Text>{exercise.name}</Text>
+      <Text>Laps: {laps}</Text>
 
-      <button onClick={() => setTime(time + 1)}>
-        Increase Time
-      </button>
+      <Button title="Add Lap" onPress={() => setLaps(laps + 1)} />
+      <Button title="Reset" onPress={() => setLaps(0)} />
 
-      <button onClick={recordLap}>
-        Record Lap
-      </button>
+      <Button
+        title="Suggested Exercise"
+        onPress={() => {
+          let screen;
 
-      <h3>Laps</h3>
-      <ul>
-        {laps.map((lap, index) => (
-          <li key={index}>Lap {index + 1}: {lap}</li>
-        ))}
-      </ul>
-    </div>
+          if (suggestedExercise.type === "repetition") screen = "Repetition";
+          else if (suggestedExercise.type === "duration") screen = "Duration";
+          else if (suggestedExercise.type === "running") screen = "Running";
+
+          navigation.push(screen, {
+            exercise: suggestedExercise,
+            exercises
+          });
+        }}
+      />
+
+      <Button title="Home" onPress={() => navigation.navigate("Home")} />
+    </View>
   );
 }
-
-export default RunningExercise;
